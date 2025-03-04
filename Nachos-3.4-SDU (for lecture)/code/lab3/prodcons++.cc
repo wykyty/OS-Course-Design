@@ -18,10 +18,14 @@
 #include "synch.h"
 #include "ring.h"
 
+#include <iostream> // exit()
+#include <fcntl.h> // creat()
+#include <unistd.h> // write()
+
 #define BUFF_SIZE 3  // the size of the round buffer
-#define N_PROD    2  // the number of producers 
+#define N_PROD    3  // the number of producers 
 #define N_CONS    2  // the number of consumers
-#define N_MESSG   4  // the number of messages produced by each producer
+#define N_MESSG   5  // the number of messages produced by each producer
 #define MAX_NAME  16 // the maximum lengh of a name
 
 #define MAXLEN	48 
@@ -68,15 +72,20 @@ Producer(_int which)
     for (num = 0; num < N_MESSG ; num++) {
       // Put the code to prepare the message here.
       // ...
+      message->value = num;
+      message->thread_id = which;
 
       // Put the code for synchronization before  ring->Put(message) here.
       // ...
+      nempty->P(); // 同步
+      mutex->P(); // 互斥
 
       ring->Put(message);
 
       // Put the code for synchronization after  ring->Put(message) here.
       // ...
-
+      mutex->V(); // 互斥
+      nfull->V(); // 同步
     }
 }
 
@@ -112,12 +121,15 @@ Consumer(_int which)
 
       // Put the code for synchronization before ring->Get(message) here.
       // ...
+      nfull->P(); // 同步
+      mutex->P(); // 互斥
 
       ring->Get(message);
 
       // Put the code for synchronization after ring->Get(message) here.
       // ...
-
+      mutex->V(); // 互斥
+      nempty->V(); // 同步
 
       // form a string to record the message
       sprintf(str,"producer id --> %d; Message number --> %d;\n", 
@@ -148,10 +160,16 @@ ProdCons()
 
     // Put the code to construct all the semaphores here.
     // ....
+    // Semaphore *mutex, *nempty, *nfull;
+    mutex = new Semaphore("mutex", 1);
+    nempty = new Semaphore("nempty", BUFF_SIZE);
+    nfull = new Semaphore("nfull", 0);
+
 
     // Put the code to construct a ring buffer object with size 
     //BUFF_SIZE here.
     // ...    
+    ring = new Ring(BUFF_SIZE);
 
 
     // create and fork N_PROD of producer threads 
@@ -165,7 +183,8 @@ ProdCons()
       //     the name in prod_names[i] and 
       //     integer i as the argument of function "Producer"
       //  ...
-
+      producers[i] = new Thread(prod_names[i]);
+      producers[i]->Fork(Producer, i);
     };
 
     // create and fork N_CONS of consumer threads 
@@ -178,7 +197,8 @@ ProdCons()
       //     the name in cons_names[i] and 
       //     integer i as the argument of function "Consumer"
       //  ...
-
+      consumers[i] = new Thread(cons_names[i]);
+      consumers[i]->Fork(Consumer, i);
     };
 }
 
