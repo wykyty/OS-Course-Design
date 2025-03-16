@@ -129,6 +129,7 @@ Append(char *from, char *to, int half)
     ASSERT(openFile != NULL);
     // append from position "start"
     start = openFile->Length();
+    fileLength = openFile->Length();   //new
     if (half) start = start / 2;
     openFile->Seek(start);
     
@@ -141,15 +142,24 @@ Append(char *from, char *to, int half)
 //	result = openFile->WriteAt(buffer, amountRead, start);
 	result = openFile->Write(buffer, amountRead);
 //	printf("result of write: %d\n", result);
+
+    if (result < 0) {  // 文件过大，或空闲磁盘块不足
+        printf("\nERROR!!!!!!\n");
+        printf("Insuficient Disk Space, or File is Too Big!\n");
+        printf("Writting Terminated.\n\n");
+        break;
+    }
+
 	ASSERT(result == amountRead);
-//	start += amountRead;
+	start += amountRead;
 //	ASSERT(start == openFile->Length());
     }
     delete [] buffer;
 
 // Write the inode back to the disk, because we have changed it
-// openFile->WriteBack();
-//  printf("inodes have been written back\n");
+    openFile->WriteBack();
+    DEBUG('f', "inodes have been written back\n");
+// printf("inodes have been written back\n");
     
 // Close the UNIX and the Nachos files
     delete openFile;
@@ -188,7 +198,8 @@ NAppend(char *from, char *to)
     if ( (openFileFrom = fileSystem->Open(from)) == NULL)
     {
 	// file "from" does not exits, give up
-	printf("NAppend:  file %s does not exist\n", from);
+	// printf("NAppend:  file %s does not exist\n", from);
+    
 	return;
     }
 
@@ -204,7 +215,11 @@ NAppend(char *from, char *to)
 	// file "to" does not exits, then create one
 	if (!fileSystem->Create(to, 0)) 
 	{
-	    printf("Append: couldn't create the file %s to append\n", to);
+        // 原本内容
+	    // printf("Append: couldn't create the file %s to append\n", to);
+        // 新增内容2行
+        printf("Couldn't create destination file \"%s\" to append.\n", to);
+        printf("File already exists, or file too big, or files on disk over 12, or insufficient disk space.\n");
 	    delete openFileFrom;
 	    return;
 	}
@@ -215,6 +230,8 @@ NAppend(char *from, char *to)
     // append from position "start"
     start = openFileTo->Length();
     openFileTo->Seek(start);
+
+    fileLength=openFileTo->Length();   //new
     
 // Append the data in TransferSize chunks
     buffer = new char[TransferSize];
@@ -225,15 +242,23 @@ NAppend(char *from, char *to)
 //	printf("start value: %d,  amountRead %d, ", start, amountRead);
 //	result = openFile->WriteAt(buffer, amountRead, start);
 	result = openFileTo->Write(buffer, amountRead);
+    if (result < 0) {  // 文件过大，或空闲磁盘块不足
+        printf("\nERROR!!!!!!\n");
+        printf("Insuficient Disk Space, or File is Too Big!\n");
+        printf("Writting Terminated.\n\n");
+        break;
+    }
+
 //	printf("result of write: %d\n", result);
 	ASSERT(result == amountRead);
-//	start += amountRead;
+	start += amountRead;  // 解除注释
 //	ASSERT(start == openFile->Length());
     }
     delete [] buffer;
 
 // Write the inode back to the disk, because we have changed it
-// openFileTo->WriteBack();
+   openFileTo->WriteBack();  // 新增内容2行
+   DEBUG('f', "inodes have been written back\n");  
 // printf("inodes have been written back\n");
     
 // Close both Nachos files
