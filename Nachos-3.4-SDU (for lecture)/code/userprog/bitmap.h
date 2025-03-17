@@ -33,32 +33,32 @@
 
 class BitMap {
   public:
-    BitMap(int nitems);		// Initialize a bitmap, with "nitems" bits
-				// initially, all bits are cleared.
-    ~BitMap();			// De-allocate bitmap
+    BitMap(int nitems);		// Initialize a bitmap, with "nitems" bits 初始化一个位图，包含“nitems”个位
+				// initially, all bits are cleared.  初始化所有位为0
+    ~BitMap();			// De-allocate bitmap  释放位图占用的内存
     
-    void Mark(int which);   	// Set the "nth" bit
-    void Clear(int which);  	// Clear the "nth" bit
-    bool Test(int which);   	// Is the "nth" bit set?
-    int Find();            	// Return the # of a clear bit, and as a side
+    void Mark(int which);   	// Set the "nth" bit 设置第which位为1
+    void Clear(int which);  	// Clear the "nth" bit  设置第which为为0
+    bool Test(int which);   	// Is the "nth" bit set?  检测第which为是否为1
+    int Find();            	// Return the # of a clear bit, and as a side   返回一个未被设置的位的编号，并设置为1
 				// effect, set the bit. 
-				// If no bits are clear, return -1.
-    int NumClear();		// Return the number of clear bits
+				// If no bits are clear, return -1.  满了，返回-1
+    int NumClear();		// Return the number of clear bits  返回未设置的位的数量
 
-    void Print();		// Print contents of bitmap
+    void Print();		// Print contents of bitmap   打印位图
     
     // These aren't needed until FILESYS, when we will need to read and 
     // write the bitmap to a file
-    void FetchFrom(OpenFile *file); 	// fetch contents from disk 
-    void WriteBack(OpenFile *file); 	// write contents to disk
+    void FetchFrom(OpenFile *file); 	// fetch contents from disk  从磁盘文件中读取位图内容
+    void WriteBack(OpenFile *file); 	// write contents to disk  将位图内容写入磁盘文件
 
   private:
-    int numBits;			// number of bits in the bitmap
-    int numWords;			// number of words of bitmap storage
+    int numBits;			// number of bits in the bitmap  位图中的位数
+    int numWords;			// number of words of bitmap storage  位图存储所需的字数
 					// (rounded up if numBits is not a
 					//  multiple of the number of bits in
-					//  a word)
-    unsigned int *map;			// bit storage
+					//  a word)   如果numBits不是字长的整数倍，则向上取整
+    unsigned int *map;			// bit storage   存储位的数组
 };
 
 #endif // BITMAP_H
