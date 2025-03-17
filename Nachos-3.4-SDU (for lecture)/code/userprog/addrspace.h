@@ -31,6 +31,8 @@ class AddrSpace {
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
 
+    void Print(); //新增，输出页表功能
+
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!

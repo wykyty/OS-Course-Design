@@ -11,15 +11,23 @@
  */
 
 #include "syscall.h"
-
+static int a[40];  //新增代码，分配更大的地址空间
 int
 main()
 {
-    char prompt[2];
-    prompt[0] = '-';
-    prompt[1] = '-';
+    // 原内容注释
+    // char prompt[2];
+    // prompt[0] = '-';
+    // prompt[1] = '-';
 
-    Write(prompt, 1, "I will shut down!\n");
+    // Write(prompt, 1, "I will shut down!\n");
+
+    // 新增
+    int i,j,k;
+    k=3;
+    i=2;
+    j=i-1;
+    k=i-j+k;
     Halt();
     /* not reached */
 }

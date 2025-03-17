@@ -32,7 +32,7 @@ StartProcess(char *filename)
     }
     space = new AddrSpace(executable);    
     currentThread->space = space;
-
+    space->Print();     // 新增代码，输出该作业的页表信息
     delete executable;			// close file
 
     space->InitRegisters();		// set the initial register values
