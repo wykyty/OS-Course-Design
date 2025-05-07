@@ -48,16 +48,66 @@
 //	are in machine.h.
 //----------------------------------------------------------------------
 
+void AdvancePC() {
+    machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+    machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg) + 4);
+}
+
 void
 ExceptionHandler(ExceptionType which)
 {
-    int type = machine->ReadRegister(2);
+    int type = machine->ReadRegister(2);  // 系统调用号
 
-    if ((which == SyscallException) && (type == SC_Halt)) {
-	DEBUG('a', "Shutdown, initiated by user program.\n");
-   	interrupt->Halt();
+    // if ((which == SyscallException) && (type == SC_Halt)) {
+	// DEBUG('a', "Shutdown, initiated by user program.\n");
+   	// interrupt->Halt();
+    // } else {
+	// printf("Unexpected user mode exception %d %d\n", which, type);
+	// ASSERT(FALSE);
+    // }
+
+    // 修改系统调用
+    if (which == SyscallException) {
+        switch (type)
+        {
+        case SC_Halt:
+            DEBUG('a', "Shutdown, initiated by user program.\n");
+            interrupt->Halt();
+            break;
+        case SC_Exit:
+            printf("Exit syscall called with status %d\n", machine->ReadRegister(4));
+            Exit(machine->ReadRegister(4));
+            break;
+        case SC_Exec:
+            printf("Exec syscall called with name %s\n", (char *)machine->ReadRegister(4));
+            // read argument
+            char filename[50];
+            int addr = machine->ReadRegister(4);
+            int i=0;
+            do{
+                //read filename from mainMemory
+                machine->ReadMem(addr+i,1,(int *)&filename[i]);
+            } while (filename[i++]!='\0');
+            printf("Exec(%s):\n",filename);
+
+            // return space id
+            machine->WriteRegister(2, space->getSpaceId());
+            AdvancePC();  // 调用完系统调用后，要更新PC
+            break;
+        case SC_Join: {
+            int SpaceId=machine->ReadRegister(4); //ie. ThreadId or SpaceId
+                currentThread->Join(spaceId);
+                //返回 Joinee 的退出码 waitProcessExitCode
+                machine->WriteRegister(2, currentThread->waitProcessExitCode);
+                AdvancePC();
+                break;
+            }
+        default:
+            printf("Unexpected system call %d\n", type);
+            ASSERT(FALSE);
+        }
     } else {
-	printf("Unexpected user mode exception %d %d\n", which, type);
-	ASSERT(FALSE);
+        printf("Unexpected user mode exception %d %d\n", which, type);
+        ASSERT(FALSE);
     }
 }

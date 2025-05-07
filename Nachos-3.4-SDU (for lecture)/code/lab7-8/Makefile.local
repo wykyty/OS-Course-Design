@@ -13,11 +13,16 @@ CCFILES += addrspace.cc\
 	exception.cc\
 	progtest.cc\
 	console.cc\
-	machine.cc\
 	mipssim.cc\
-	translate.cc
+	list.cc\
+	translate.cc\
+	thread.cc\
+	scheduler.cc\
+	main.cc\
+	system.cc
+	
 
-INCPATH += -I../bin -I../userprog -I../filesys
+INCPATH += -I../lab7-8 -I../bin -I../userprog -I../filesys
 
 ifdef MAKE_FILE_FILESYS_LOCAL
 DEFINES += -DUSER_PROGRAM

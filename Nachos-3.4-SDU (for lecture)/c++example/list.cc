@@ -133,3 +133,5 @@ bool
 List::Empty() { 
     return (first == NULL);
 }
+
+

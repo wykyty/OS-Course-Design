@@ -23,22 +23,25 @@
 void
 StartProcess(char *filename)
 {
-    OpenFile *executable = fileSystem->Open(filename);
-    AddrSpace *space;
+    OpenFile *executable = fileSystem->Open(filename);  // 打开可执行文件
+    AddrSpace *space;  // 地址空间
 
     if (executable == NULL) {
 	printf("Unable to open file %s\n", filename);
 	return;
     }
-    space = new AddrSpace(executable);    
-    currentThread->space = space;
+    space = new AddrSpace(executable);  //为应用程序filename分配地址空间，并将其装入分配的内存空间中
+                                        //然后建立页表，并建立虚页与实页的映射关系
+                                        // space是该进程标识，而不是用pid来标识进程
+    currentThread->space = space;   // 将该进程映射到核心进程
     space->Print();     // 新增代码，输出该作业的页表信息
     delete executable;			// close file
 
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
 
-    machine->Run();			// jump to the user progam
+    machine->Run();			// jump to the user progam  
+    // 从这里开始，控制权转移到用户进程，用户进程开始执行，直到执行完毕或发生异常退出
     ASSERT(FALSE);			// machine->Run never returns;
 					// the address space exits
 					// by doing the syscall "exit"

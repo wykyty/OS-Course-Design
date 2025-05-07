@@ -43,13 +43,14 @@ static void TimerHandler(_int arg)
 
 Timer::Timer(VoidFunctionPtr timerHandler, _int callArg, bool doRandom)
 {
+    // 设置定时器中断的回调函数和参数
     randomize = doRandom;
     handler = timerHandler;
     arg = callArg; 
 
     // schedule the first interrupt from the timer device
     interrupt->Schedule(TimerHandler, (_int) this, TimeOfNextInterrupt(), 
-		TimerInt); 
+		TimerInt);   // 安排一个中断事件，下一次中断时间为TimerTicks
 }
 
 //----------------------------------------------------------------------

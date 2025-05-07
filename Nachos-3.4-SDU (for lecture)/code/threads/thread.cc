@@ -145,6 +145,7 @@ Thread::CheckOverflow()
 //----------------------------------------------------------------------
 
 //
+
 void
 Thread::Finish ()
 {
@@ -394,4 +395,25 @@ Thread::RestoreUserState()
     for (int i = 0; i < NumTotalRegs; i++)
 	machine->WriteRegister(i, userRegisters[i]);
 }
+
+void 
+Thread::Terminate() 
+{
+    List *terminatedList = scheduler->getTerminatedList(); // 获取终止线程队列
+    Thread *nextThread;
+    
+    ASSERT(this == currentThread); // a thread sleep by itsef
+    ASSERT(interrupt->getLevel() == IntOff);
+    status = TERNINATED; 
+    terminatedList->Append((void *)this); //
+    
+    nextThread = scheduler->FindNextToRun(); 
+    while(nextThread == NULL)
+    {
+    interrupt->Idle();
+    nextThread = scheduler->FindNextToRun();
+    }
+    scheduler->Run(nextThread); // returns when we've been signalled
+}
 #endif
+

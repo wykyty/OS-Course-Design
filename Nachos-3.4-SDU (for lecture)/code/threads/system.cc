@@ -104,9 +104,9 @@ Initialize(int argc, char **argv)
 	    }
 	} else if (!strcmp(*argv, "-rs")) {
 	    ASSERT(argc > 1);
-	    RandomInit(atoi(*(argv + 1)));	// initialize pseudo-random
+	    RandomInit(atoi(*(argv + 1)));	// initialize pseudo-random  设计随机种子
 						// number generator
-	    randomYield = TRUE;
+	    randomYield = TRUE;  // 启用定时器中断
 	    argCount = 2;
 	}
 #ifdef USER_PROGRAM
@@ -139,7 +139,7 @@ Initialize(int argc, char **argv)
     interrupt = new Interrupt;			// start up interrupt handling
     scheduler = new Scheduler();		// initialize the ready queue
     if (randomYield)				// start the timer (if needed)
-	timer = new Timer(TimerInterruptHandler, 0, randomYield);
+	timer = new Timer(TimerInterruptHandler, 0, randomYield);  // 启用定时器中断
 
     threadToBeDestroyed = NULL;
 
