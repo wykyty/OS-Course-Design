@@ -73,7 +73,7 @@
      // 执行所有测试
      TestFileOps();       // 文件操作测试
      TestProcessControl();// 进程控制测试
-     //TestForkYield();     // Fork/Yield测试
+     TestForkYield();     // Fork/Yield测试
      // 最终停机
      Halt();
  }

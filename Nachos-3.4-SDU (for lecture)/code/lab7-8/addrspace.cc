@@ -19,7 +19,7 @@
 #include "system.h"
 #include "addrspace.h"
 #include "noff.h"
-#include "bitmap.h"// 新增代码 为了包含BitMap类
+#include "bitmap.h" // 使用BitMap类找到空闲页框
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -58,7 +58,7 @@ SwapHeader (NoffHeader *noffH)
 //	"executable" is the file containing the object code to load into memory
 //----------------------------------------------------------------------
 
-/*注释代码 原AddrSpace，因为需要改的有点多，干脆把原函数注释起来再写个新的
+/*
 AddrSpace::AddrSpace(OpenFile *executable)
 {
     NoffHeader noffH;
@@ -118,15 +118,14 @@ AddrSpace::AddrSpace(OpenFile *executable)
 }
 */
 
-// 新增代码121~200行 新AddrSpace
 AddrSpace::AddrSpace(OpenFile *executable)
 {
-    bool hasAvailablePid = false; // 标记是否能够找到pid
+    bool hasAvailablePid = false;  // 标记是否有空闲的pid
     for(int i = 100; i < MAX_USERPROCESSES; i++){
-        if(ThreadMap[i] == false){ // 找到后将ThreadMap数组对应位置1
+        if(ThreadMap[i] == false){ // 找到空闲的pid，分配给当前进程
             ThreadMap[i] = true;
             spaceId = i;
-            AddrSpaces[spaceId] = this;
+            AddrSpaces[spaceId] = this;  // 记录当前进程的地址空间
             hasAvailablePid = true;
             break;
         }
@@ -137,15 +136,15 @@ AddrSpace::AddrSpace(OpenFile *executable)
     }
     // Init ProBitMap
     if(ProBitmap == NULL)
-        ProBitmap = new BitMap(NumPhysPages); // 初始化ProBitmap
+        ProBitmap = new BitMap(NumPhysPages); // 初始化ProBitmap，分配空闲页框
         
     NoffHeader noffH;
     unsigned int i, size;
 
-    executable->ReadAt((char *)&noffH, sizeof(noffH), 0);//把可执行文件的信息读入
+    executable->ReadAt((char *)&noffH, sizeof(noffH), 0); // 读取文件头
     if ((noffH.noffMagic != NOFFMAGIC) && 
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
-    	SwapHeader(&noffH);//如果是小端机器，转换为大端机器
+    	SwapHeader(&noffH);  // 小端机器，转换为大端机器
     ASSERT(noffH.noffMagic == NOFFMAGIC);
 
 // how big is address space?
@@ -165,7 +164,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     pageTable = new TranslationEntry[numPages]; // 现在虚拟地址不等于物理地址
     for (i = 0; i < numPages; i++) {
 	    pageTable[i].virtualPage = i;
-	    pageTable[i].physicalPage = ProBitmap->Find();  //找到空的页框
+	    pageTable[i].physicalPage = ProBitmap->Find();  //找到空的页框，而不是直接 = i，避免冲突
 	    pageTable[i].valid = TRUE;
 	    pageTable[i].use = FALSE;
 	    pageTable[i].dirty = FALSE;
@@ -205,7 +204,6 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 AddrSpace::~AddrSpace()
 {
-    // 新增代码4行
     ThreadMap[spaceId] = 0; //false 
     for (int i = 0; i < numPages; i++) { 
         ProBitmap->Clear(pageTable[i].physicalPage); 
@@ -270,7 +268,6 @@ void AddrSpace::RestoreState()
     machine->pageTableSize = numPages;
 }
 
-// 新增代码10行
 void AddrSpace::Print()
 {
     printf("page table dump:  %d pages  in total\n", numPages);  
@@ -280,9 +277,4 @@ void AddrSpace::Print()
     printf("\t %d, \t\t%d\n", pageTable[i].virtualPage, pageTable[i].physicalPage); 
     } 
     printf("============================================\n\n"); 
-}
-
-// 新增代码3行 
-int AddrSpace::GetSpaceId(){
-    return spaceId;
 }

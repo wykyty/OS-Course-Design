@@ -21,10 +21,10 @@
 //	memory, and jump to it.
 //----------------------------------------------------------------------
 
-// 新增代码9行 重载StartProcess(char *filename)
+// 重载StartProcess
 void StartProcess(int spaceId) 
 { 
-    AddrSpace *space = AddrSpaces[spaceId]; // 分配地址空间
+    AddrSpace *space = AddrSpaces[spaceId]; // 分配给该进程的地址空间
     space->InitRegisters(); // set the initial register values 
     space->RestoreState();  // load page table register 
  
@@ -36,26 +36,25 @@ void StartProcess(int spaceId)
 void
 StartProcess(char *filename)
 {
-    OpenFile *executable = fileSystem->Open(filename);
-    AddrSpace *space;
+    OpenFile *executable = fileSystem->Open(filename);  // 打开可执行文件
+    AddrSpace *space;  // 地址空间
 
     if (executable == NULL) {
 	printf("Unable to open file %s\n", filename);
 	return;
     }
-    space = new AddrSpace(executable);
-// 为应用程序filename分配内存空间并将其装入所分配的内存空间中，然后建立页表，并建立虚页与实页（帧）的映射关系
-// space 就是该进程的标识，而不是用pid来当进程标识
-    currentThread->space = space;// 将该进程映射到一个核心进程
-    space->Print();//新增代码 输出该作业的页表信息
+    space = new AddrSpace(executable);  //为应用程序filename分配地址空间，并将其装入分配的内存空间中
+                                        //然后建立页表，并建立虚页与实页的映射关系
+                                        // space是该进程标识，而不是用pid来标识进程
+    currentThread->space = space;   // 将该进程映射到核心进程
+    space->Print();     // 输出该作业的页表信息，以便调试
     delete executable;			// close file
 
     space->InitRegisters();		// set the initial register values
-    // 初始化 CPU 的寄存器
     space->RestoreState();		// load page table register
 
-    machine->Run();			// jump to the user progam
-    // 从程序入口开始，完成取指令、译码、执行的过程，直到进程遇到Exit()语句或者异常才退出
+    machine->Run();			// jump to the user progam  
+    // 从这里开始，控制权转移到用户进程，用户进程开始执行，直到执行完毕或发生异常退出
     ASSERT(FALSE);			// machine->Run never returns;
 					// the address space exits
 					// by doing the syscall "exit"

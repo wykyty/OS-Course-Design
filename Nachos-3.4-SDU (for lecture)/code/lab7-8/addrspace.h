@@ -32,15 +32,15 @@ class AddrSpace {
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
 
-    void Print();       // 新增代码 输出程序的页表
-    int GetSpaceId();   // 新增代码 获取进程spaceId
+    void Print();       // 输出程序的页表，方便查看，调试使用
+    int GetSpaceId() { return spaceId; }   // 获取进程spaceId
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
-    int spaceId;// 新增代码 声明pid
+    int spaceId;  // 记录地址空间id，用于区分多个地址空间
 };
 
 #endif // ADDRSPACE_H

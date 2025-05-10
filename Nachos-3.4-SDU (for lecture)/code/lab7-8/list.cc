@@ -43,7 +43,7 @@ ListElement::ListElement(void *itemPtr, int sortKey)
 List::List()
 { 
     first = last = NULL; 
-    num = 0; // 新增代码 列表元素个数初始为0
+    num = 0; // 元素个数初始为0
 }
 
 //----------------------------------------------------------------------
@@ -86,7 +86,7 @@ List::Append(void *item)
 	last->next = element;
 	last = element;
     }
-    num++;  // 新增代码 列表元素+1
+    num++;  // 元素+1
 }
 
 //----------------------------------------------------------------------
@@ -113,7 +113,7 @@ List::Prepend(void *item)
 	element->next = first;
 	first = element;
     }
-    num++;// 新增代码 列表元素+1
+    num++;//  元素+1
 }
 
 //----------------------------------------------------------------------
@@ -202,7 +202,7 @@ List::SortedInsert(void *item, int sortKey)
 	last->next = element;		// item goes at end of list
 	last = element;
     }
-    num++;// 新增代码 列表元素+1
+    num++;//  元素+1
 }
 
 //----------------------------------------------------------------------
@@ -237,16 +237,10 @@ List::SortedRemove(int *keyPtr)
     if (keyPtr != NULL)
         *keyPtr = element->key;
     delete element;
-    num--;// 新增代码 列表元素个数-1
+    num--;//  元素--
     return thing;
 }
 
-// 新增代码 实现函数List::ListLength
-int List::ListLength(){
-    return num;
-}
-
-// 新增代码 实现函数List::GetItem
 void* List::GetItem(int i){
     ListElement *ptr = first;
     for(int j=0;j<i;j++){
@@ -255,7 +249,6 @@ void* List::GetItem(int i){
     return ptr->item;
 }
 
-// 新增代码 实现函数List::Remove
 void List::Remove(void *item){
     ListElement *ptr = first;
     ListElement *pre = NULL;

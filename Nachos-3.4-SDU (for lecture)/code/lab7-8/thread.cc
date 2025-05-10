@@ -262,7 +262,7 @@ Thread::Sleep ()
         
     scheduler->Run(nextThread); // returns when we've been signalled
 }
-// 新增代码 实现Thread::Join函数
+// 实现Thread::Join函数
 #ifdef USER_PROGRAM
 int Thread::Join(int SpaceId){
     IntStatus oldLevel = interrupt->SetLevel(IntOff);//关中断
@@ -295,7 +295,7 @@ int Thread::Join(int SpaceId){
     interrupt->SetLevel(oldLevel);//开中断
 }
 
-// 新增代码 实现Thread::Terminated函数
+// 实现Thread::Terminated函数
 void Thread::Terminated(){
     List *termainatedList = scheduler->getTerminatedList();//获取已终止的队列
     Thread *nextThread;
@@ -309,14 +309,6 @@ void Thread::Terminated(){
         nextThread=scheduler->FindNextToRun();
     }
     scheduler->Run(nextThread); // returns when we've been signalled
-}
-// 新增代码 得到退出代码
-int Thread::getExitStatus(){
-    return exitCode;
-}
-// 新增代码 设置退出代码
-void Thread::setExitCode(int Code){
-    exitCode = Code;
 }
 #endif
 //----------------------------------------------------------------------

@@ -130,14 +130,15 @@ class Thread {
     void SaveUserState();		// save user-level register state
     void RestoreUserState();		// restore user-level register state
 
-    int Join(int SpaceId); // 新增代码 增加Join函数
-    void Terminated();      // 新增代码 增加Terminated函数
-    void setExitCode(int Code);   // 新增代码 设置进程的退出码
-    int getExitStatus();           // 新增代码 返回进程的退出码
-    int waitingProcessSpaceId;// 新增代码 等待进程的SpaceId
-    int UserProgramId;        // 新增代码 用户进程id
-    int waitProcessExitCode;      // 新增代码 等待进程的退出码
-    int exitCode;                 // 新增代码 进程的退出码
+    int exitCode;			// 线程退出码
+    int waitProcessExitCode;   // 等待线程退出码
+    int waitingProcessSpaceId;		// 等待进程空间ID
+    int UserProgramId;  // 用户进程Id
+
+    int Join(int spaceId);  // 等待线程结束，返回线程退出码
+    void Terminated(); // 线程结束
+    int getExitStatus() { return exitCode; };  // 获得进程退出码
+    void setExitCode(int code) { this->exitCode = code; };  // 设置进程退出码
 
     AddrSpace *space;			// User code this thread is running.
 #endif

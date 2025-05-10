@@ -16,9 +16,9 @@
 #include "stats.h"
 #include "timer.h"
 
-#include "addrspace.h"	// 新增代码 包含AddrSpace类
-#include "bitmap.h"		// 新增代码 包含BitMap类
-#define MAX_USERPROCESSES 256 // 新增代码 定义最大用户进程数量
+#include "addrspace.h"   // for AddrSpace
+#include "bitmap.h"     // for BitMap
+#define MAX_USERPROCESSES 256  // 最大用户进程数量
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -33,9 +33,9 @@ extern Interrupt *interrupt;			// interrupt status
 extern Statistics *stats;			// performance metrics
 extern Timer *timer;				// the hardware alarm clock
 
-extern BitMap *ProBitmap; // 新增代码 for free frame
-extern bool ThreadMap[MAX_USERPROCESSES];// 新增代码
-extern AddrSpace* AddrSpaces[MAX_USERPROCESSES];// 新增代码
+extern BitMap *ProBitmap; //  for free frame
+extern bool ThreadMap[MAX_USERPROCESSES];// 
+extern AddrSpace* AddrSpaces[MAX_USERPROCESSES];// 
 
 #ifdef USER_PROGRAM
 #include "machine.h"
